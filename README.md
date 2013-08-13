@@ -5,13 +5,44 @@ Wechat Push
 ```
 var Pusher = require('wechat_push');
 
-var pusher = new Pusher(username, password);
-pusher.login(function (err) {
-  // send的第一个参数为fakeId，请自行搞定
-  pusher.send('604347680', '搞定push', function (err, data) {
-  	// 发送完成
-    done();
-  });
+var handleMessage = function(message){
+  console.log((new Date()) * 1);
+}
+
+var handleError = function (error) {
+  console.log(error);
+}
+
+var p = new Pusher('username', 'password');
+
+p.login(function(err, verify){  // A callback for login is required
+  if (err) { 
+    console.log(err);
+  }
+  if (verify) {  // need verify code
+    console.log(verify);
+    // `verify` is alias `p.err`
+  }
+  // otherwise, login success;
+
+  p.on('message', handleMessage);
+  p.on('error', handleError);
+
+  p.send('177366',  // Fromfakeid, your own fakeId 
+         '177366',  // Tofakeid
+         'message', // message
+         function(err, body){
+           if (err )
+             return console.log(err);
+           // if success, a fetch worker will start and
+           // you are able to listen on `err` for handling 
+           // fetch err and `message` for handling new message
+           // Known bug:
+           // If use send, the worker will not work
+           // because the raw cookie was modified when referenced
+           // So a copy of cookie is necessary
+           console.log(body);
+         });
 });
 ```
 
